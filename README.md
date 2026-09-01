@@ -17,13 +17,30 @@ PLAF-Net (Phase-Location Attention Fusion Network) is a hierarchical attention m
 - **Overall split:** 140 patients were divided *before model development* into a 112-patient development cohort (80%) and a 28-patient independent holdout (20%), at the patient level. The holdout was excluded from all preprocessing decisions, model selection, hyperparameter selection, threshold selection, and checkpoint selection.
 - **Development cross-validation:** 5-fold `StratifiedGroupKFold` within the development cohort, grouped by patient ID so all recordings from one patient stay in the same fold. Within each outer-training fold, ~15% of patients formed a subject-disjoint internal validation set for early stopping (this is a nested split inside the development cohort, distinct from the main 80:20 split).
 
-## 4. Reproducibility plan
+## 4. Baseline comparators
+ 
+All comparators share the same encoder and training protocol; they isolate specific architectural components as a controlled ablation, not comparisons to independently reimplemented external SOTA methods:
+ 
+| Model | Phase aggregation | Location aggregation | Purpose |
+|---|---|---|---|
+| Global-CNN | n/a (whole-clip MFCC) | Mean | Global baseline, no phase structure |
+| Fixed-MBCNN | Mean (4 fixed temporal partitions, non-physiological) | Mean | Non-physiological temporal control |
+| Phase-MBCNN | Mean (4 physiological phases) | Mean | Isolates effect of physiological phase alignment |
+| Phase-AttNet | Attention | Mean | Isolates phase-attention contribution |
+| Location-AttNet | Mean | Attention | Isolates location-attention contribution |
+| **PLAF-Net** | Attention | Attention | Combined phase + location attention (proposed) |
+
+## 5. Calibration
+ 
+Stated explicitly as a limitation in the paper: *"Calibration was not assessed in the current analysis and is therefore treated as a limitation rather than inferred from the sigmoid scores."* Sigmoid outputs are treated throughout as **prediction scores**, not calibrated probabilities.
+
+## 6. Reproducibility plan
  
 - **Code:** Full training and evaluation pipeline provided in `PLAFNet.ipynb` and `PLAFNet_Inference.ipynb`.
 - **Random seeds:** 21, 42, 84, used consistently for both development CV and final retraining (`REAL_SEEDS = (21, 42, 84)`).
 - **Data access:** The full 140-patient dataset is **not** publicly distributed due to patient privacy. Per the paper's data availability statement, it is available from the corresponding author (mandalasatria@gmail.com or randy.pdr@gmail.com).
 - **Data path:** Notebooks currently reference local absolute paths (e.g. `DATA_DIR = "E:/Research"`, `CSV_PATH = "E:\notebook\hyperparameter_search_log.csv"`).
 
-## 4. Citation
+## 7. Citation
  
 Mandala S, Akram RR, Pramudyo M, Utomo WH. PLAF-Net: Hierarchical Explainability at the Cardiac-Phase and Auscultation-Location Levels for Leakage-Resilient Myocardial Infarction Detection from Multi-Site Phonocardiograms
